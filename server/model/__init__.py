@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 from config import MYSQL_DB_URL
 
+
 @contextmanager
 def session_scope():
     engine = create_engine(
