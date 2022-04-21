@@ -21,7 +21,7 @@ app.include_router(auth.app)
 app.include_router(comment.app)
 
 if __name__ == '__main__':
-    uvicorn.run("server.main:app", host="0.0.0.0", reload=True)  # reload = 디버깅
+    uvicorn.run("server.main:app", host="0.0.0.0", port='5000', reload=True)  # reload = 디버깅
 
 
     '''
