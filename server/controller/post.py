@@ -22,7 +22,7 @@ async def post(body: Posts, authorize: AuthJWT = Depends()):
         token_check(authorize=authorize, type="access")
         user_id = authorize.get_jwt_subject()
         new_posts = Post(
-            user_id="test",
+            user_id=user_id,
             title=body.title,
             content=body.content
         )
