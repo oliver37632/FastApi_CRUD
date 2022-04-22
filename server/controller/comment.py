@@ -56,7 +56,7 @@ async def comment_get(post_id: int, authorize: AuthJWT = Depends()):
 
             return {
                 "comment": [{
-                    "id": id,
+                    "user_id": id,
                     "content": content,
                     "create_at": str(create_at)
                 } for id, content, create_at in join]
