@@ -19,10 +19,10 @@ app = APIRouter(
 
 
 @app.post("", status_code=status.HTTP_200_OK)
-async def auth(name: str):
+async def auth(userId: str):
     with session_scope() as session:
 
-        auth = session.query(User).filter(User.name == name)
+        auth = session.query(User).filter(User.id == userId)
 
         if not auth.scalar():
             return {
