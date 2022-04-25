@@ -7,7 +7,7 @@ from datetime import timedelta
 import bcrypt
 
 from fastapi_jwt_auth import AuthJWT
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 
 from config import ACCESS_TIMEOUT, REFRESH_TIMEOUT
 
@@ -18,26 +18,20 @@ app = APIRouter(
 )
 
 
-@app.post("", status_code=status.HTTP_200_OK)
-async def auth(userId: str):
+@app.post("", status_code=status.HTTP_200_OK,)
+async def idrd_check(userId: str):
     with session_scope() as session:
 
         auth = session.query(User).filter(User.id == userId)
 
         if not auth.scalar():
-            return {
-                "message": "usable"
-            }, 200
-
-        return {
-                "message": "overlap"
-            }, 409
+            return
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Overlap")
 
 
 @app.post("/signups", status_code=status.HTTP_201_CREATED)
 async def signup(body: SignUp):
     with session_scope() as session:
-        try:
             new_signup = User(
                 id=body.id,
                 name=body.name,
@@ -46,32 +40,38 @@ async def signup(body: SignUp):
 
             session.add(new_signup)
             session.commit()
-        except ValueError:
-            return {
-                "message": "id is overlap"
-            }, 409
 
 
 @app.post("/logins", status_code=status.HTTP_200_OK)
 async def login(body: Login, authorize: AuthJWT=Depends()):
+    with session_scope() as session:
+        user = session.query(User).filter(User.id == body.id)
 
-    access_expires_delta = timedelta(minutes=ACCESS_TIMEOUT)
-    refresh_expires_delta = timedelta(minutes=REFRESH_TIMEOUT)
+        if not user.scalar():
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="email and password does not match")
 
-    access_token = authorize.create_access_token(
-        subject=body.id,
-        expires_time=access_expires_delta
-    )
-    refresh_token = authorize.create_refresh_token(
-        subject=body.id,
-        expires_time=refresh_expires_delta
-    )
+        user = user.first()
+        password = body.password
+        check_user_pw = bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8"))
+        if not check_user_pw:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="email and password does not match")
 
+        access_expires_delta = timedelta(minutes=ACCESS_TIMEOUT)
+        refresh_expires_delta = timedelta(minutes=REFRESH_TIMEOUT)
 
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token
-    }, 200
+        access_token = authorize.create_access_token(
+            subject=body.id,
+            expires_time=access_expires_delta
+        )
+        refresh_token = authorize.create_refresh_token(
+            subject=body.id,
+            expires_time=refresh_expires_delta
+        )
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
 
 
 
