@@ -9,7 +9,7 @@ from server.utils.auth import token_check
 
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 
 from fastapi_jwt_auth import AuthJWT
 
@@ -21,7 +21,7 @@ app = APIRouter(
 
 
 @app.post("", status_code=status.HTTP_201_CREATED)
-async def comment_psot(post_id: int, body: Comments, authorize: AuthJWT = Depends()):
+async def write_comment(post_id: int, body: Comments, authorize: AuthJWT = Depends()):
     with session_scope() as session:
         token_check(authorize=authorize, type="access")
 
@@ -43,7 +43,7 @@ async def comment_psot(post_id: int, body: Comments, authorize: AuthJWT = Depend
 
 
 @app.get("", status_code=status.HTTP_200_OK)
-async def comment_get(post_id: int, authorize: AuthJWT = Depends()):
+async def get_comment(post_id: int, authorize: AuthJWT = Depends()):
     with session_scope() as session:
         token_check(authorize=authorize, type="access")
         try:
@@ -63,6 +63,4 @@ async def comment_get(post_id: int, authorize: AuthJWT = Depends()):
             }, 200
 
         except:
-            return {
-                "message": "Not Match"
-            }, 400
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NotFound")
