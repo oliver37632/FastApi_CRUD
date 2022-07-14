@@ -1,9 +1,9 @@
 from sqlalchemy import Column, VARCHAR, Integer, ForeignKey, DATETIME, text
 from sqlalchemy.orm import relationship
 
-from server.model.comment import Comment
+from server.core.model.comment import Comment
 
-from server.model import Base
+from server.core.model import Base
 
 
 class Post(Base):
@@ -16,3 +16,4 @@ class Post(Base):
     user_id = Column(VARCHAR(10), ForeignKey('user.id'))
 
     comment = relationship(Comment, cascade="all,delete", backref="post")
+

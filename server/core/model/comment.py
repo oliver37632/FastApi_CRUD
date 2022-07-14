@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, DATETIME, VARCHAR, ForeignKey, text
-from server.model import Base
+from server.core.model import Base
 
 
 class Comment(Base):

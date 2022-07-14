@@ -1,27 +1,46 @@
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AccessTokenRequired, RefreshTokenRequired, JWTDecodeError, MissingTokenError
-
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 
-oauth = OAuth2PasswordBearer(tokenUrl="token")
+from sqlalchemy.orm import Session
+
+from server.core.model.user import User
+
+from server.utils.security import get_password_hash, verify_password, create_access_token
 
 
-def token_check(authorize: AuthJWT, type: str):
-    try:
-        if type == "access":
-            authorize.jwt_required()
-        elif type == "refresh":
-            authorize.jwt_refresh_token_required()
-        else:
-            raise ValueError
-    except ValueError:
-        raise ValueError
-    except AccessTokenRequired:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="access token required")
-    except RefreshTokenRequired:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="refresh token required")
-    except JWTDecodeError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="token has expired")
-    except MissingTokenError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="token not found")
+def create_user(session: Session, id: str, password: str, name: str):
+    session.add(
+        User(
+            id=id,
+            password=get_password_hash(password),
+            name=name
+        )
+    )
+
+    return HTTPException(status_code=status.HTTP_201_CREATED, detail="success")
+
+
+def login(session: Session, id: str, password: str):
+    user = session.query(User.id, User.password).filter(User.id == id)
+
+    if not user.scalar():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="id does not exist")
+
+    user = user.first()
+    if not verify_password(plain_password=password, hashed_password=user["password"]):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong password")
+
+    return {
+        "access_token": create_access_token(user_id=user["id"])
+    }
+
+
+def check_id(session: Session, id: str):
+    user = session.query(User.id).filter(User.id == id)
+
+    if user.scalar():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Overlap")
+
+    else:
+        return {
+            "message": "Available"
+        }

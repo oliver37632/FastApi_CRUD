@@ -17,7 +17,7 @@ def session_scope():
         max_overflow=20,
         pool_pre_ping=True
     )
-    Session = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
+    Session = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False))
     session = Session()
     try:
         yield session
