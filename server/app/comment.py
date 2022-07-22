@@ -9,7 +9,7 @@ from fastapi import APIRouter, status, Depends
 app = APIRouter()
 
 
-@app.post("", status_code=status.HTTP_201_CREATED)
+@app.post("")
 async def write_comment(body: Comments, user: User = Depends(get_current_user)):
     with session_scope() as session:
         req = create_comment(content=body.content, post_id=body.post_id, session=session, user_id=user.id)
