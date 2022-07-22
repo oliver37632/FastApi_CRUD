@@ -16,14 +16,14 @@ async def write_post(body: Posts, user: User = Depends(get_current_user)):
         return req
 
 
-@app.get("", status_code=status.HTTP_200_OK)
+@app.get("")
 async def all_get_post():
     with session_scope() as session:
         req = await get_post_list(session=session)
         return req
 
 
-@app.get("/{post_id}", status_code=status.HTTP_200_OK)
+@app.get("/{post_id}")
 async def get_post(post_id: int):
     with session_scope() as session:
 
@@ -31,14 +31,14 @@ async def get_post(post_id: int):
         return req
 
 
-@app.put("/{post_id}", status_code=status.HTTP_201_CREATED)
+@app.put("/{post_id}")
 async def update_post(post_id: int, body: Posts, user: User = Depends(get_current_user)):
     with session_scope() as session:
         req = await edit_post(post_id=post_id, title=body.title, content=body.content, id=user.id, session=session)
         return req
 
 
-@app.delete("/{post_id}", status_code=status.HTTP_200_OK)
+@app.delete("/{post_id}")
 async def del_post(post_id: int, user: User = Depends(get_current_user)):
     with session_scope() as session:
         req = await delete_post(session=session, post_id=post_id, id=user.id)
