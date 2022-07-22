@@ -7,20 +7,20 @@ from fastapi import APIRouter, status
 app = APIRouter()
 
 
-@app.post("", status_code=status.HTTP_200_OK)
+@app.post("")
 async def checking_id(id: str):
     with session_scope() as session:
         return check_id(session=session, id=id)
 
 
-@app.post("/signUp", status_code=status.HTTP_201_CREATED)
+@app.post("/signUp")
 async def sign_up(body: SignUp):
     with session_scope() as session:
 
         return create_user(id=body.id, password=body.password, name=body.name, session=session)
 
 
-@app.post("/login", status_code=status.HTTP_200_OK)
+@app.post("/login")
 async def logins(body: Login):
     with session_scope() as session:
         return login(session=session, id=body.id, password=body.password)
