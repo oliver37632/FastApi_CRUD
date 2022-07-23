@@ -13,7 +13,7 @@ async def checking_id(id: str):
         return check_id(session=session, id=id)
 
 
-@app.post("/signUp")
+@app.post("/signup")
 async def sign_up(body: SignUp):
     with session_scope() as session:
 
