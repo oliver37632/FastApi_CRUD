@@ -24,6 +24,7 @@ async def get_post_list(session: Session):
     posts = session.query(Post).all()
 
     return {"posts": [{
+        "post_id": post.id,
         "title": post.title,
         "content": post.content,
         "user_id": post.user_id,
@@ -36,6 +37,7 @@ async def see_more_post(post_id: int, session: Session):
     comments = session.query(Comment).filter(Comment.post_id == post_id).all()
 
     return {
+        "post_id": post.id,
         "title": post.title,
         "content": post.content,
         "username": post.user_id,
@@ -47,28 +49,6 @@ async def see_more_post(post_id: int, session: Session):
             "created_at": comment.create_at
         }for comment in comments]
     }
-
-    # post = session.query(
-    #                      Post.id,
-    #                      Post.title,
-    #                      Post.content,
-    #                      Post.user_id,
-    #                      Post.create_at,
-    #                      Comment.content,
-    #                      Comment.user_id,
-    #                      ).join(Post, Post.id == Comment.post_id).filter(Post.id == post_id).all()
-    #
-    # return {
-    #     "posts": [{
-    #         "post_id": post_id,
-    #         "post_title": post_title,
-    #         "post_content": post_content,
-    #         "post_user_id": post_user_id,
-    #         "post_create_at": post_create_at,
-    #         "comment_content": comment_content,
-    #         "comment_user_id": comment_user_id
-    #     }for post_id, post_title, post_content, post_user_id, post_create_at, comment_content, comment_user_id in post]
-    # }
 
 
 async def edit_post(post_id: int, title: str, content: str, id:str, session: Session):
