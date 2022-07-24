@@ -3,7 +3,7 @@ from server.core.model import Base
 
 
 class Comment(Base):
-    __tablename__ = 'Comment'
+    __tablename__ = 'comment'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(VARCHAR(255), nullable=True)
